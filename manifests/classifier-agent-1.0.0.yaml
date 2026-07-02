@@ -1,0 +1,39 @@
+name: classifier-agent
+version: 1.0.0
+description: "Classifies text into predefined categories using Claude"
+author_team: platform-team
+model_recommendations:
+  - claude-haiku-4-5-20251001
+inputs:
+  type: object
+  required: [text, categories]
+  properties:
+    text:
+      type: string
+      description: "Text to classify"
+    categories:
+      type: array
+      description: "List of possible categories"
+    multi_label:
+      type: boolean
+      default: false
+outputs:
+  type: object
+  required: [category, confidence]
+  properties:
+    category:
+      type: string
+    confidence:
+      type: number
+    all_scores:
+      type: object
+eval_suite:
+  - id: sentiment
+    input: { text: "I love this product!", categories: ["positive", "negative", "neutral"] }
+    expected_output_contains: [category]
+    score: 0.96
+  - id: topic
+    input: { text: "The president signed a new bill.", categories: ["politics", "sports", "tech"] }
+    expected_output_contains: [category]
+    score: 0.89
+tags: [nlp, classification, text-processing]

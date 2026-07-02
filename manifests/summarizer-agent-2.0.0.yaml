@@ -1,0 +1,44 @@
+name: summarizer-agent
+version: 2.0.0
+description: "v2 — URL-based summarization. Breaking: replaces text input with document_url."
+author_team: aisdlc
+model_recommendations:
+  - claude-sonnet-4-6
+  - claude-opus-4-8
+inputs:
+  type: object
+  required: [document_url]
+  properties:
+    document_url:
+      type: string
+      description: "URL of document to summarize"
+    max_length:
+      type: integer
+      default: 500
+    format:
+      type: string
+      default: "bullets"
+outputs:
+  type: object
+  required: [summary, source_url]
+  properties:
+    summary:
+      type: string
+    source_url:
+      type: string
+    word_count:
+      type: integer
+eval_suite:
+  - id: short-text
+    input: { document_url: "https://example.com/short" }
+    expected_output_contains: [summary]
+    score: 0.94
+  - id: technical-doc
+    input: { document_url: "https://example.com/rfc" }
+    expected_output_contains: [summary]
+    score: 0.92
+  - id: multilingual
+    input: { document_url: "https://example.com/es-doc" }
+    expected_output_contains: [summary]
+    score: 0.91
+tags: [nlp, summarization, text-processing, multilingual, v2]

@@ -1,0 +1,34 @@
+name: summarizer-agent
+version: 1.0.0
+description: "Summarizes documents into concise bullet points using Claude"
+author_team: aisdlc
+model_recommendations:
+  - claude-sonnet-4-6
+inputs:
+  type: object
+  required: [text]
+  properties:
+    text:
+      type: string
+      description: "Full text to summarize"
+    max_length:
+      type: integer
+      description: "Max summary length in words"
+      default: 500
+outputs:
+  type: object
+  required: [summary]
+  properties:
+    summary:
+      type: string
+      description: "Summarized text"
+eval_suite:
+  - id: short-text
+    input: { text: "The quick brown fox jumps over the lazy dog." }
+    expected_output_contains: [summary]
+    score: 0.91
+  - id: technical-doc
+    input: { text: "This RFC proposes a new protocol for agent communication..." }
+    expected_output_contains: [summary]
+    score: 0.87
+tags: [nlp, summarization, text-processing]

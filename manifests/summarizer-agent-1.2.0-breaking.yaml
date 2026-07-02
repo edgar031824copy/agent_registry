@@ -1,0 +1,28 @@
+name: summarizer-agent
+version: 1.2.0
+description: "BREAKING VERSION — removes required text field (demo only)"
+author_team: aisdlc
+model_recommendations:
+  - claude-sonnet-4-6
+inputs:
+  type: object
+  required: [document_url]
+  properties:
+    document_url:
+      type: string
+      description: "URL of document to summarize (replaces text field)"
+    max_length:
+      type: integer
+      default: 500
+outputs:
+  type: object
+  required: [summary]
+  properties:
+    summary:
+      type: string
+eval_suite:
+  - id: url-fetch
+    input: { document_url: "https://example.com/doc" }
+    expected_output_contains: [summary]
+    score: 0.85
+tags: [nlp, summarization]
