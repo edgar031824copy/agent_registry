@@ -1,6 +1,6 @@
 name: summarizer-agent
 version: 1.2.0
-description: "BREAKING VERSION — removes required text field (demo only)"
+description: "BREAKING VERSION — removes required text field"
 author_team: aisdlc
 model_recommendations:
   - claude-sonnet-4-6
