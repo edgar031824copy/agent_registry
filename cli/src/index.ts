@@ -1,4 +1,8 @@
 #!/usr/bin/env node
+import * as path from 'path'
+import * as dotenv from 'dotenv'
+// Load .env from repo root regardless of where the CLI is invoked from
+dotenv.config({ path: path.resolve(__dirname, '../../.env') })
 import { Command } from 'commander'
 import { makePushCommand } from './commands/push'
 import { makePullCommand } from './commands/pull'
