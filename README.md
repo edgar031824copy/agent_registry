@@ -69,7 +69,3 @@ A manifest is a **contract, not code** — like an OpenAPI spec for an agent: na
 - **Parallel versions (AC#1):** versions are immutable files side by side; publishing 2.0.0 never touches 1.x consumers.
 - **Eval scores — declared vs measured:** by default the registry stores the publisher's declared scores. With `push --eval` (or `EVAL_ON_PUSH=true`), the registry executes each eval case against Claude at push time and stores measured contract-compliance scores instead.
 - **Reuse metric (AC#3):** `reuse_ratio = agents_reused / (agents_authored + agents_reused)` per team, where reuse = pulling an agent authored by another team.
-
-## Demo
-
-See [DEMO.md](./DEMO.md) for the scripted walkthrough.
