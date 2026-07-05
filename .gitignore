@@ -29,3 +29,8 @@ Thumbs.db
 # Local runtime data
 tmp/
 temp/
+server/data/*
+!server/data/.gitkeep
+!server/data/manifests/
+server/data/manifests/*
+!server/data/manifests/.gitkeep
