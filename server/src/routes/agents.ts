@@ -1,15 +1,19 @@
 import { Router, Request, Response } from 'express'
 import semver from 'semver'
+import yaml from 'js-yaml'
 import { parseManifest } from '../manifest'
 import { saveManifest, loadManifest, listVersions, listAgents } from '../storage'
 import { detectBreakingChanges } from '../schema-diff'
 import { recordPush } from '../db'
+import { runEvalSuite, applyComputedScores, EvalRunResult } from '../eval-runner'
 
 const router = Router()
 
 // POST /agents — push a new agent version
-router.post('/', (req: Request, res: Response) => {
-  const { yaml: yamlContent, pushing_team } = req.body as { yaml: string; pushing_team: string }
+router.post('/', async (req: Request, res: Response) => {
+  const { yaml: yamlContent, pushing_team, run_evals } = req.body as {
+    yaml: string; pushing_team: string; run_evals?: boolean
+  }
 
   if (!yamlContent || !pushing_team) {
     return res.status(400).json({ error: 'yaml and pushing_team are required' })
@@ -47,12 +51,35 @@ router.post('/', (req: Request, res: Response) => {
     return res.status(409).json({ error: `${manifest.name}@${manifest.version} already exists` })
   }
 
-  saveManifest(manifest, yamlContent)
-  recordPush(manifest.name, manifest.version, manifest.author_team)
+  // Optionally execute the eval suite live and store computed scores
+  // instead of the publisher-declared ones (opt-in: --eval flag or EVAL_ON_PUSH=true)
+  const shouldRunEvals = run_evals === true || process.env.EVAL_ON_PUSH === 'true'
+  let evalResults: EvalRunResult[] | undefined
+  let finalManifest = manifest
+  let finalYaml = yamlContent
+
+  if (shouldRunEvals && (manifest.eval_suite?.length ?? 0) > 0) {
+    if (!process.env.ANTHROPIC_API_KEY) {
+      return res.status(400).json({
+        error: 'Eval execution requested but ANTHROPIC_API_KEY is not set on the server'
+      })
+    }
+    try {
+      evalResults = await runEvalSuite(manifest)
+    } catch (e) {
+      return res.status(502).json({ error: `Eval execution failed: ${(e as Error).message}` })
+    }
+    finalManifest = applyComputedScores(manifest, evalResults)
+    finalYaml = yaml.dump(finalManifest)
+  }
+
+  saveManifest(finalManifest, finalYaml)
+  recordPush(finalManifest.name, finalManifest.version, finalManifest.author_team)
 
   return res.status(201).json({
-    message: `${manifest.name}@${manifest.version} published successfully`,
-    manifest
+    message: `${finalManifest.name}@${finalManifest.version} published successfully`,
+    manifest: finalManifest,
+    ...(evalResults ? { eval_results: evalResults } : {})
   })
 })
 

@@ -1,3 +1,7 @@
+import path from 'path'
+import dotenv from 'dotenv'
+// Load .env from repo root (ANTHROPIC_API_KEY for eval-on-push, EVAL_ON_PUSH)
+dotenv.config({ path: path.resolve(__dirname, '../../.env') })
 import express from 'express'
 import cors from 'cors'
 import agentsRouter from './routes/agents'

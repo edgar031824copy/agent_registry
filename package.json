@@ -1,11 +1,16 @@
 {
   "name": "agent-registry",
   "private": true,
-  "workspaces": ["server", "cli", "client"],
+  "workspaces": [
+    "server",
+    "cli",
+    "client"
+  ],
   "scripts": {
     "dev": "concurrently \"npm run dev --workspace=server\" \"npm run dev --workspace=client\"",
     "build": "npm run build --workspace=server && npm run build --workspace=client",
-    "cli": "npm run start --workspace=cli"
+    "cli": "npm run start --workspace=cli",
+    "registry:reset": "bash scripts/reset-registry.sh"
   },
   "devDependencies": {
     "concurrently": "^8.2.2"

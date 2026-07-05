@@ -95,10 +95,12 @@ export function makeRunCommand(): Command {
       })
 
       const rawText = response.content[0].type === 'text' ? response.content[0].text : ''
+      // Models sometimes wrap JSON in ```json fences despite instructions
+      const cleaned = rawText.trim().replace(/^```(?:json)?\s*/, '').replace(/\s*```$/, '')
 
       // 5. Parse and display output
       try {
-        const output = JSON.parse(rawText)
+        const output = JSON.parse(cleaned)
         console.log(chalk.green(`✓ ${name}@${version} responded:\n`))
         console.log(JSON.stringify(output, null, 2))
       } catch {
