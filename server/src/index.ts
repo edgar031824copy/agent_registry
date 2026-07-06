@@ -8,6 +8,7 @@ import agentsRouter from './routes/agents'
 import versionsRouter from './routes/versions'
 import evalsRouter from './routes/evals'
 import metricsRouter from './routes/metrics'
+import { seedIfEmpty } from './seed'
 
 const app = express()
 app.use(cors())
@@ -20,6 +21,10 @@ app.use('/metrics', metricsRouter)
 
 app.get('/health', (_req, res) => res.json({ status: 'ok' }))
 
-app.listen(3001, () => {
-  console.log('Agent Registry server running on http://localhost:3001')
+// Repopulate the demo catalog when booting empty (deployment: ephemeral disk)
+if (process.env.SEED_ON_BOOT === 'true') seedIfEmpty()
+
+const PORT = Number(process.env.PORT ?? 3001)
+app.listen(PORT, () => {
+  console.log(`Agent Registry server running on http://localhost:${PORT}`)
 })

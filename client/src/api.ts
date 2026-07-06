@@ -1,4 +1,5 @@
-const BASE = '/api'
+// Local dev: '/api' → Vite proxy to :3001. Production: Vercel injects the Render URL at build time.
+const BASE = import.meta.env.VITE_API_URL ?? '/api'
 
 export interface CatalogEntry {
   name: string
