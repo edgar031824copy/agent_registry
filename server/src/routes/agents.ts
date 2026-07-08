@@ -26,16 +26,19 @@ router.post('/', async (req: Request, res: Response) => {
     return res.status(400).json({ error: (e as Error).message })
   }
 
-  // Check for existing versions to detect breaking changes
+  // Check for existing versions to detect breaking changes.
+  // Baseline = latest version within the SAME major line — a new 1.x must be
+  // compatible with the existing 1.x consumers even if 2.x already exists.
   const versions = listVersions(manifest.name)
   if (versions.length > 0) {
-    const latestVersion = versions.sort(semver.compare).at(-1)!
-    const latestMajor = semver.major(latestVersion)
     const newMajor = semver.major(manifest.version)
+    const sameMajorBaseline = versions
+      .filter(v => semver.major(v) === newMajor)
+      .sort(semver.compare)
+      .at(-1)
 
-    // Only check breaking changes within the same major version
-    if (newMajor === latestMajor) {
-      const latestManifest = loadManifest(manifest.name, latestVersion)!
+    if (sameMajorBaseline) {
+      const latestManifest = loadManifest(manifest.name, sameMajorBaseline)!
       const breakingChanges = detectBreakingChanges(latestManifest, manifest)
       if (breakingChanges.length > 0) {
         return res.status(422).json({
